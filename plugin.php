@@ -136,17 +136,18 @@ class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 		// $phoneNumbers;
 		//if cookie is not set
 		$cookieName = self::$prefix . "referral";		
-		
 		$swappy_reset_link = $this->options['swappy_reset_link']->get_value();
+
+		error_log('$_COOKIE[ $cookieName ]: '. $_COOKIE[ $cookieName ]);
 		
-		
-		if ( isset( $_GET['swappy_cookie_reset'] ) && $_GET['swappy_cookie_reset'] == '1' ){
+		if ( isset( $_GET[$swappy_reset_link]) && $_GET[$swappy_reset_link] == 1 ){
+			error_log('resetting cookie');
+			unset($_COOKIE[$cookieName]);
 			setcookie( $cookieName, "", time()-3600);
-			return;
 		}
 
 		if ( ! isset( $_COOKIE[$cookieName] ) ){
-
+			error_log('no cookie found, determining source...');
 			$sereferral = $this->determine_if_referral();
 		   
 		} else {
@@ -158,7 +159,7 @@ class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 		    }
 		}
 		$this->referral = $sereferral;
-
+		return;
 	}
 	/**
 	 * determine_if_referral()
@@ -172,12 +173,17 @@ class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 	function determine_if_referral(){
 		$use_get_var = $this->options['use_get_var']->get_value();
 		$get_tracking_var = $this->options['get_tracking_var']->get_value();
+
+		error_log($_SERVER['HTTP_REFERER']);
+
 		if( ( $use_get_var[0] == "search" || $use_get_var[0] == "both" ) && isset( $_SERVER['HTTP_REFERER'] ) ) {
 
 	        // if so parse url...
 	        $ref = parse_url( $_SERVER['HTTP_REFERER'], PHP_URL_HOST );
+
 	        // and check if referral from google, yahoo, bing
-	        if( strpos( $ref, "google.com" ) !== false || strpos( $ref, "yahoo.com" ) !== false || strpos( $ref, "bing.com" ) !== false ) { 
+	        if( strpos( $ref, "google.com" ) >= 0 || strpos( $ref, "yahoo.com" ) >= 0 || strpos( $ref, "bing.com" ) >= 0 ) { 
+	        	error_log('$ref = ' . $ref);
 	            // is a referral
 	            $this->set_referral_cookie(true);
 	        	return true;
@@ -188,6 +194,7 @@ class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 	        $this->set_referral_cookie(true);
 	        return true;
 	    }
+	    error_log('no referrer found, setting cookie to false');
         $this->set_referral_cookie(false);
         return false;
 
@@ -211,11 +218,13 @@ class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 			$cookieval = "false";
 		}
 
-		if ( $domain == '' ){
+		if ( ! isset($domain) || $domain == '' ){
 			$domain = null;
 		}
-		$this->logger->_log("Path is set to $path");
- 		setcookie( $cookieName, $cookieval, $time, $path, $domain );
+		//$this->logger->_log("Path is set to $path");
+		error_log('setting cookie: ... ');
+		error_log("setcookie( $cookieName, $cookieval, $time, $path, $domain)");
+ 		setcookie( $cookieName, $cookieval, $time, $path, $domain);
 
 	}
 	function is_referral(){
@@ -436,6 +445,15 @@ function upgrade_phone_number_swappy_1_1_3() {
 	}
 }
 register_activation_hook( __FILE__, 'upgrade_phone_number_swappy_1_1_3' );
+register_deactivation_hook( __FILE__, 'remove_phone_number_swappy' );
+
+function remove_phone_number_swappy(){
+	remove_action('init', 'swappy_header_stuff');
+	remove_action('template_redirect', 'swappy_header_stuff');
+	remove_action("init", array( $pns, 'filter_client_phone_option' ));
+	remove_action("wp_head", array( $pns, "appendJS") );
+}
+
 // add_action( 'plugins_loaded', "upgrade_phone_number_swappy_1_1_3" );
 
 $optionfactory = new SwappyFactory();
@@ -448,7 +466,7 @@ $pns = new PhoneNumberSwappy($optionfactory, $loggingobject, $notifierobject, $s
 // print_r(get_option("pns_phone_numbers"));
 // var_dump(get_option("pns_phone_numbers"));
 
-add_action("init", array( $pns, "swappy_header_stuff"), 40 );
+add_action("init", array( $pns, "swappy_header_stuff"), 1 );
 add_action("init", array( $pns, 'filter_client_phone_option' ), 41 );
 add_action("wp_head", array( $pns, "appendJS") );
 add_shortcode("swappy", array( $pns, "swappyNumber") );
