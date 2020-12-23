@@ -3,8 +3,8 @@
  * Plugin Name: Phone Number Swappy
  * Plugin URI: http://www.anchorwave.com
  * Description: Used to swap phone numbers
- * Version: 1.1.10
- * Author: Jameel Bokhari
+ * Version: 1.1.3
+ * Author: Jameel Bokhari, Wayne Hall, Alyssa Musante
  * Author URI: http://www.codeatlarge.com
  * License: GPL2
  */
@@ -42,13 +42,13 @@ function phone_number_swappy_updater(){
 	    $config = array(
 	        'slug' => plugin_basename(__FILE__), // this is the slug of your plugin
 	        'proper_folder_name' => 'phone-number-swappy', // this is the name of the folder your plugin lives in
-	        'api_url' => 'https://api.github.com/repos/jbokhari/phone-number-swappy', // the GitHub API url of your GitHub repo
-	        'raw_url' => 'https://raw.github.com/jbokhari/phone-number-swappy/master', // the GitHub raw url of your GitHub repo
-	        'github_url' => 'https://github.com/jbokhari/phone-number-swappy', // the GitHub url of your GitHub repo
-	        'zip_url' => 'https://github.com/jbokhari/phone-number-swappy/zipball/master', // the zip url of the GitHub repo
+	        'api_url' => 'https://api.github.com/repos/alyssa-musante/phone-number-swappy', // the GitHub API url of your GitHub repo
+	        'raw_url' => 'https://raw.github.com/alyssa-musante/phone-number-swappy/master', // the GitHub raw url of your GitHub repo
+	        'github_url' => 'https://github.com/alyssa-musante/phone-number-swappy', // the GitHub url of your GitHub repo
+	        'zip_url' => 'https://github.com/alyssa-musante/phone-number-swappy/zipball/master', // the zip url of the GitHub repo
 	        'sslverify' => true, // whether WP should check the validity of the SSL cert when getting an update, see https://github.com/jkudish/WordPress-GitHub-Plugin-Updater/issues/2 and https://github.com/jkudish/WordPress-GitHub-Plugin-Updater/issues/4 for details
 	        'requires' => '4.0', // which version of WordPress does your plugin require?
-	        'tested' => '4.2', // which version of WordPress is your plugin tested up to?
+	        'tested' => '5.5.3', // which version of WordPress is your plugin tested up to?
 	        'readme' => 'README.md',
 	        'access_token' => '', // Access private repositories by authorizing under Appearance > GitHub Updates when this example plugin is installed
 	    );
@@ -138,16 +138,16 @@ class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 		$cookieName = self::$prefix . "referral";		
 		$swappy_reset_link = $this->options['swappy_reset_link']->get_value();
 
-		error_log('$_COOKIE[ $cookieName ]: '. $_COOKIE[ $cookieName ]);
+		//error_log('$_COOKIE[ $cookieName ]: '. $_COOKIE[ $cookieName ]);
 		
 		if ( isset( $_GET[$swappy_reset_link]) && $_GET[$swappy_reset_link] == 1 ){
-			error_log('resetting cookie');
+			//error_log('resetting cookie');
 			unset($_COOKIE[$cookieName]);
 			setcookie( $cookieName, "", time()-3600);
 		}
 
 		if ( ! isset( $_COOKIE[$cookieName] ) ){
-			error_log('no cookie found, determining source...');
+			//error_log('no cookie found, determining source...');
 			$sereferral = $this->determine_if_referral();
 		   
 		} else {
@@ -174,8 +174,6 @@ class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 		$use_get_var = $this->options['use_get_var']->get_value();
 		$get_tracking_var = $this->options['get_tracking_var']->get_value();
 
-		error_log($_SERVER['HTTP_REFERER']);
-
 		if( ( $use_get_var[0] == "search" || $use_get_var[0] == "both" ) && isset( $_SERVER['HTTP_REFERER'] ) ) {
 
 	        // if so parse url...
@@ -183,7 +181,6 @@ class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 
 	        // and check if referral from google, yahoo, bing
 	        if( strpos( $ref, "google.com" ) >= 0 || strpos( $ref, "yahoo.com" ) >= 0 || strpos( $ref, "bing.com" ) >= 0 ) { 
-	        	error_log('$ref = ' . $ref);
 	            // is a referral
 	            $this->set_referral_cookie(true);
 	        	return true;
@@ -194,7 +191,7 @@ class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 	        $this->set_referral_cookie(true);
 	        return true;
 	    }
-	    error_log('no referrer found, setting cookie to false');
+	    //error_log('no referrer found, setting cookie to false');
         $this->set_referral_cookie(false);
         return false;
 
@@ -222,8 +219,8 @@ class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 			$domain = null;
 		}
 		//$this->logger->_log("Path is set to $path");
-		error_log('setting cookie: ... ');
-		error_log("setcookie( $cookieName, $cookieval, $time, $path, $domain)");
+		//error_log('setting cookie: ... ');
+		//error_log("setcookie( $cookieName, $cookieval, $time, $path, $domain)");
  		setcookie( $cookieName, $cookieval, $time, $path, $domain);
 
 	}
@@ -454,7 +451,7 @@ function remove_phone_number_swappy(){
 	remove_action("wp_head", array( $pns, "appendJS") );
 }
 
-// add_action( 'plugins_loaded', "upgrade_phone_number_swappy_1_1_3" );
+//add_action( 'plugins_loaded', "upgrade_phone_number_swappy_1_1_3" );
 
 $optionfactory = new SwappyFactory();
 $loggingobject = new SwappyLogging( PhoneNumberSwappy::$name );
@@ -462,9 +459,6 @@ $notifierobject = new SwappyNotifier( PhoneNumberSwappy::$prefix );
 $scriptmgmt = new SwappyScriptManagerDefault();
 $metabox = new SwappyMetaBoxFactory();
 $pns = new PhoneNumberSwappy($optionfactory, $loggingobject, $notifierobject, $scriptmgmt, $metabox);
-
-// print_r(get_option("pns_phone_numbers"));
-// var_dump(get_option("pns_phone_numbers"));
 
 add_action("init", array( $pns, "swappy_header_stuff"), 1 );
 add_action("init", array( $pns, 'filter_client_phone_option' ), 41 );
