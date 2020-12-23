@@ -91,7 +91,7 @@ require_once('lava/class.lava.plugin.core.php');
  */
 class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 	static $prefix = 'pns_';
-	static $ver = '1.1.10';
+	static $ver = '1.1.11';
 	static $name = 'pns';
 	public $option_prefix = 'pns_';
 	public $localize_object = 'PNS';
