@@ -3,7 +3,7 @@
  * Plugin Name: Phone Number Swappy
  * Plugin URI: http://www.anchorwave.com
  * Description: Used to swap phone numbers
- * Version: 1.1.3
+ * Version: 1.1.11
  * Author: Jameel Bokhari, Wayne Hall, Alyssa Musante
  * Author URI: http://www.codeatlarge.com
  * License: GPL2
@@ -315,10 +315,6 @@ class PhoneNumberSwappy extends PhoneNumberSwappyCore {
 			$targets[] = $values['js_target'];
 		}
 
-		// $jsTarget1 = $this->options["jsTarget1"]->get_value();
-		// $jsTarget2 = $this->options["jsTarget2"]->get_value();
-		// $jsTarget3 = $this->options["jsTarget3"]->get_value();
-
 		$jsvars = array(
 			"jsTarget" => $targets,
 			"phoneNumbers" => $this->numbers
@@ -414,19 +410,11 @@ function upgrade_phone_number_swappy_1_1_3() {
 					"js_target" => $pns_jstarget3 ? $pns_jstarget3  : "",
 					"notes" => 'Phone Number 3'
 				);
-				// $newnumbers["default_number"][] = $pns_phoneNumber3 ? $pns_phoneNumber3 : "";
-				// $newnumbers["replacement_number"][] = $pns_swappyNumber3 ? $pns_swappyNumber3 : "";
-				// $newnumbers["js_target"][] = $pns_jstarget3 ? $pns_jstarget3 : "";
-				// $newnumbers["notes"][] = 'Phone Number 3';
 				$_meta_rows++;
 			}
 			$newnumbers[ '__meta_rows' ] = $_meta_rows;
 
-			// $newnumbers = ;
-			// echo "newnumbers";
-			// var_dump($newnumbers);
 			$newnumbers = serialize($newnumbers);
-			// var_dump($newnumbers);
 			update_option( "pns_phone_numbers", $newnumbers );
 			delete_option( "pns_phoneNumber1" );
 			delete_option( "pns_swappyNumber1" );
@@ -450,8 +438,6 @@ function remove_phone_number_swappy(){
 	remove_action("init", array( $pns, 'filter_client_phone_option' ));
 	remove_action("wp_head", array( $pns, "appendJS") );
 }
-
-//add_action( 'plugins_loaded', "upgrade_phone_number_swappy_1_1_3" );
 
 $optionfactory = new SwappyFactory();
 $loggingobject = new SwappyLogging( PhoneNumberSwappy::$name );

@@ -13,7 +13,7 @@ Phone number swappy is built on lava 22
 
 *This is for for GitHub Updater*
 
-~Current Version:1.1.10~
+~Current Version:1.1.11~
 
 #### changelog
 
@@ -22,3 +22,6 @@ Phone number swappy is built on lava 22
 
 **up to 1.0.9**
 : Undocumented :(
+
+**1.1.11**
+: Fixed issue(s) preventing cookie from setting properly
